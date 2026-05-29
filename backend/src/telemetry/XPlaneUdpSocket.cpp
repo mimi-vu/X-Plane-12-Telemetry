@@ -2,10 +2,7 @@
  * @file    XPlaneUdpSocket.cpp
  * @brief   UDP socket wrapper — STUB.
  *
- * TODO (implementation tasks):
- *   1. Include the correct platform socket header:
- *        Windows: <winsock2.h> + <ws2tcpip.h>  (link ws2_32.lib)
- *        POSIX:   <sys/socket.h> + <netinet/in.h> + <unistd.h>
+
  *   2. In open():
  *        - Create a UDP socket via socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP).
  *        - Set SO_REUSEADDR so the process can restart cleanly.
@@ -23,6 +20,10 @@
  */
 
 #include "telemetry/XPlaneUdpSocket.hpp"
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "ws2_32.lib") // link socket functions ?
 
 namespace xpt
 {
@@ -46,22 +47,42 @@ XPlaneUdpSocket::~XPlaneUdpSocket()
 
 SocketResult XPlaneUdpSocket::open(xpt::common::uint16 port, const std::string& bindAddress)
 {
-    (void)port;
-    (void)bindAddress;
-    // TODO: implement — see file header
+    // create socket
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock == INVALID_SOCKET) return SocketResult::ERR_PLATFORM;
+
+    int resuse = 1; 
+
+    // setsockopt() is a function that configures options for the socket
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(resuse)); 
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET; 
+    addr.sin_port   = htons(port); // cpu reads port number in little-endian, needs to be big
+
+    if (bindAddress.empty()) addr.sin_addr.s_addr = INADDR_ANY;  // accept from any network 
+    else inet_pton(AF_INET, bindAddress.c_str(), &addr.sin_addr); // convert IP address to binary
+
+    // bind to port
+    int result = bind(sock, (sockaddr*)&addr, sizeof(addr)); 
+
+    if (result < 0) return SocketResult::ERR_BIND;
+
     return SocketResult::ERR_CLOSED;
 }
 
+// waits for udp packet to arrive, copies bytes into buffer
 SocketResult XPlaneUdpSocket::receive(xpt::common::uint8*  buffer,
                                        xpt::common::uint32  bufferCapacity,
                                        xpt::common::uint32& bytesReceived,
                                        xpt::common::uint32  timeoutMs)
 {
-    (void)buffer;
-    (void)bufferCapacity;
-    (void)timeoutMs;
-    bytesReceived = 0U;
-    // TODO: implement — see file header
+    if (timeoutMS > 0U) {
+        DWORD tv = static_cast<DWORD>(timeoutMs);
+        setsockopt(m_socketHandle, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+    }
+
+    
     return SocketResult::ERR_CLOSED;
 }
 
