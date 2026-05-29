@@ -19,6 +19,9 @@
 
 #include "common/Types.hpp"
 
+#include <ctime>
+#include <cstring>
+
 namespace xpt
 {
 namespace telemetry
@@ -30,8 +33,8 @@ namespace telemetry
  */
 struct DataRow
 {
-    xpt::common::int32   index;          ///< XPlane data index (channel ID)
-    xpt::common::float32 values[8];      ///< Channel values; unused = -999.0f
+    xpt::common::int32 index;       ///< XPlane data index (channel ID)
+    xpt::common::float32 values[8]; ///< Channel values; unused = -999.0f
 };
 
 /**
@@ -48,9 +51,9 @@ static const xpt::common::uint32 DATA_PACKET_MAX_ROWS = 64U;
  */
 struct DataPacket
 {
-    xpt::common::uint32     rowCount;                      ///< Number of valid rows
-    DataRow                 rows[DATA_PACKET_MAX_ROWS];    ///< Parsed rows
-    xpt::common::TimestampMs receiveTimestampMs;            ///< Wall-clock receive time
+    xpt::common::uint32 rowCount;                ///< Number of valid rows
+    DataRow rows[DATA_PACKET_MAX_ROWS];          ///< Parsed rows
+    xpt::common::TimestampMs receiveTimestampMs; ///< Wall-clock receive time
 };
 
 /**
@@ -58,10 +61,10 @@ struct DataPacket
  */
 enum class ParseResult : xpt::common::uint8
 {
-    OK              = 0U, ///< Packet parsed successfully.
-    ERR_TOO_SHORT   = 1U, ///< Buffer is smaller than minimum packet size.
-    ERR_BAD_HEADER  = 2U, ///< First 4 bytes are not "DATA".
-    ERR_OVERFLOW    = 3U  ///< More rows than DATA_PACKET_MAX_ROWS.
+    OK = 0U,             ///< Packet parsed successfully.
+    ERR_TOO_SHORT = 1U,  ///< Buffer is smaller than minimum packet size.
+    ERR_BAD_HEADER = 2U, ///< First 4 bytes are not "DATA".
+    ERR_OVERFLOW = 3U    ///< More rows than DATA_PACKET_MAX_ROWS.
 };
 
 /**
@@ -75,9 +78,7 @@ enum class ParseResult : xpt::common::uint8
  * TODO: implement in DataPacket.cpp — walk the buffer, validate header,
  *       loop over sub-records casting to DataRow layout.
  */
-ParseResult parseDataPacket(const xpt::common::uint8* buffer,
-                             xpt::common::uint32        length,
-                             DataPacket&                outPacket);
+ParseResult parseDataPacket(const xpt::common::uint8* buffer, xpt::common::uint32 length, DataPacket& outPacket);
 
 } // namespace telemetry
 } // namespace xpt

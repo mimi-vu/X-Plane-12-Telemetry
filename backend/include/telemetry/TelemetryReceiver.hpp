@@ -20,6 +20,9 @@
 #include "XPlaneUdpSocket.hpp"
 #include "common/Types.hpp"
 
+#include <atomic>
+#include <thread>
+
 namespace xpt
 {
 namespace telemetry
@@ -35,7 +38,9 @@ namespace telemetry
 class IPacketHandler
 {
 public:
-    virtual ~IPacketHandler() {}
+    virtual ~IPacketHandler()
+    {
+    }
 
     /**
      * @brief  Called once per successfully parsed DataPacket.
@@ -95,9 +100,10 @@ private:
      */
     void receiveLoop();
 
-    XPlaneUdpSocket    m_socket;
-    IPacketHandler*    m_handler;
-    bool               m_running;
+    XPlaneUdpSocket m_socket;
+    IPacketHandler* m_handler;
+    std::atomic<bool> m_running;
+    std::thread m_thread;
 
     // TODO: add a std::thread (or platform thread handle) for receiveLoop()
 };

@@ -59,3 +59,10 @@ endif()
 add_executable(xpt_main src/main.cpp)
 
 target_link_libraries(xpt_main PRIVATE xpt_backend)
+
+
+# ---------------------------------------------------------------------------
+# Test executable
+# ---------------------------------------------------------------------------
+add_executable(xpt_test src/test.cpp)
+target_link_libraries(xpt_test PRIVATE xpt_backend)

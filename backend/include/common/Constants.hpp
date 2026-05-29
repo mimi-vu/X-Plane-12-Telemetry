@@ -59,15 +59,15 @@ constexpr float32 WING_SWEEP_AUTO_SCHEDULE = 0.0F;   // TODO: document auto-sche
 // ---------------------------------------------------------------------------
 // XPlane 12 UDP protocol — see XPlane 12 SDK net_spec.cpp
 // ---------------------------------------------------------------------------
-constexpr uint16 XPLANE_DEFAULT_UDP_PORT   = 49000U;   // xplane12 docs
+constexpr uint16 XPLANE_DEFAULT_UDP_PORT   = 49003U;   // xplane12 docs
 constexpr uint32 UDP_RECV_BUFFER_BYTES     = 4096U;   //  size to max expected packet
 constexpr uint32 XPLANE_DATA_VALUES_PER_ROW = 8U;  
 
 // ---------------------------------------------------------------------------
 // Metrics / display timing
 // ---------------------------------------------------------------------------
-constexpr uint32 METRICS_UPDATE_RATE_HZ    = 60U;   // TODO: decide based on display needs
-constexpr uint32 DISPLAY_PUBLISH_RATE_HZ   = 20U;   // TODO: decide
+constexpr uint32 METRICS_UPDATE_RATE_HZ    = 10U;   // TODO: decide based on display needs
+constexpr uint32 DISPLAY_PUBLISH_RATE_HZ   = 10U;   // TODO: decide
 
 } 
 } 

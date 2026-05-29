@@ -27,15 +27,49 @@ namespace xpt
 namespace telemetry
 {
 
-ParseResult parseDataPacket(const xpt::common::uint8* buffer,
-                             xpt::common::uint32        length,
-                             DataPacket&                outPacket)
+ParseResult parseDataPacket(const xpt::common::uint8* buffer, xpt::common::uint32 length, DataPacket& outPacket)
 {
-    (void)buffer;
-    (void)length;
-    (void)outPacket;
-    // TODO: implement — see file header
-    return ParseResult::ERR_TOO_SHORT;
+    const xpt::common::uint32 HEADER_SIZE = 5U;
+    const xpt::common::uint32 ROW_SIZE = 36U;
+
+    // validate length
+    if (length < 5)
+        return ParseResult::ERR_TOO_SHORT;
+
+    // validate header
+    if (buffer[0] != 'D' || buffer[1] != 'A' || buffer[2] != 'T' || buffer[3] != 'A')
+        return ParseResult::ERR_BAD_HEADER;
+
+    // sub-records
+    outPacket.rowCount = 0;
+    xpt::common::uint32 offset = HEADER_SIZE; // 5
+
+    while ((offset + ROW_SIZE) <= length)
+    {
+        if (outPacket.rowCount >= DATA_PACKET_MAX_ROWS)
+            return ParseResult::ERR_OVERFLOW;
+
+        DataRow& row = outPacket.rows[outPacket.rowCount];
+
+        // read index from first 4 bytes of the row
+        memcpy(&row.index, buffer + offset, sizeof(xpt::common::int32));
+        offset += sizeof(xpt::common::int32);
+
+        // read 8 float32 values
+
+        for (xpt::common::uint32 i = 0U; i < 8U; ++i)
+        {
+            memcpy(&row.values[i], buffer + offset, sizeof(xpt::common::float32));
+            offset += sizeof(xpt::common::float32);
+        }
+
+        ++outPacket.rowCount;
+    }
+
+    outPacket.receiveTimestampMs =
+        static_cast<xpt::common::TimestampMs>(static_cast<xpt::common::uint64>(clock()) * 1000U / CLOCKS_PER_SEC);
+
+    return ParseResult::OK;
 }
 
 } // namespace telemetry
